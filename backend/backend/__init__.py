@@ -1,2 +1,0 @@
-# Inicializador do backend
-
