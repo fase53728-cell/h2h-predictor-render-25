@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H2H Predictor</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+
+<body>
+
+    <!-- Modal BG -->
+    <div id="modal-bg" class="modal-bg"></div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-header">
+            <h3>Importar Dados</h3>
+            <button class="close-btn" onclick="closeModal()">✕</button>
+        </div>
+
+        <div class="modal-tabs">
+            <button class="tab active" data-target="nova-liga">Nova Liga</button>
+            <button class="tab" data-target="importar-csv">Importar CSV</button>
+        </div>
+
+        <!-- Aba Nova Liga -->
+        <div id="nova-liga" class="modal-content active">
+            <label>Nome da Liga</label>
+            <input type="text" id="nomeLiga" placeholder="Ex: Premier League">
+
+            <label>Pais (opcional)</label>
+            <input type="text" id="paisLiga" placeholder="Ex: Inglaterra">
+
+            <div class="split">
+                <div>
+                    <label>ID da Liga</label>
+                    <input type="text" id="idLiga" placeholder="Ex: 39">
+                </div>
+
+                <div>
+                    <label>ID da Temporada</label>
+                    <input type="text" id="idSeason" placeholder="Ex: 2024">
+                </div>
+            </div>
+
+            <button class="btn-primary">Criar Liga</button>
+        </div>
+
+        <!-- Aba Importar CSV -->
+        <div id="importar-csv" class="modal-content">
+            <div class="upload-box">
+                <p>Selecionar arquivo CSV</p>
+                <input type="file" id="csvFile" accept=".csv">
+            </div>
+
+            <button class="btn-primary">Importar Times</button>
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="container">
+
+        <!-- Palpites do Dia -->
+        <div class="card collapsible">
+            <div class="card-header">
+                <h3>Palpites do Dia</h3>
+                <span class="arrow">▼</span>
+            </div>
+            <div class="card-body">
+                <p>Aqui aparecerão os 5 melhores palpites automáticos.</p>
+            </div>
+        </div>
+
+        <!-- Apostas Múltiplas -->
+        <div class="card collapsible">
+            <div class="card-header">
+                <h3>Apostas Múltiplas</h3>
+                <span class="arrow">▼</span>
+            </div>
+            <div class="card-body">
+                <p>Aqui aparecerão as combinações de apostas recomendadas.</p>
+            </div>
+        </div>
+
+        <!-- Análise de Confronto -->
+        <div class="card">
+            <h3>Análise de Confronto</h3>
+            <p>Selecione os times para análise H2H</p>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Liga</label>
+                    <select id="ligaSelect">
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Time Mandante</label>
+                    <select id="timeMandante">
+                        <option>Selecione...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Time Visitante</label>
+                    <select id="timeVisitante">
+                        <option>Selecione...</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn-primary full">Analisar Confronto</button>
+
+            <button class="btn-secondary" onclick="openModal()">Importar Liga/CSV</button>
+        </div>
+
+        <!-- Cards dos Times -->
+        <div class="teams-container">
+            <div class="team-card">
+                <div class="team-title">Liverpool</div>
+                <div class="team-tag green">Mandante</div>
+            </div>
+
+            <div class="team-card">
+                <div class="team-title">Manchester City</div>
+                <div class="team-tag blue">Visitante</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JS -->
+    <script src="/static/js/main.js"></script>
+
+</body>
+</html>
