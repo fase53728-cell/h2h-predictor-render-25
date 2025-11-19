@@ -5,89 +5,90 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>H2H Predictor</title>
 
-    <!-- CSS CORRETO -->
-    <link rel="stylesheet" href="/static/css/style.css" />
+    <link rel="stylesheet" href="/static/css/styles.css" />
 </head>
 
 <body>
 
-    <!-- ============================= HEADER ============================= -->
-    <header class="header">
-        <h1>H2H Predictor</h1>
-        <p>Análise completa de confrontos com estatísticas avançadas e IA</p>
+    <header class="header-main">
+        <h1 class="title">H2H Predictor</h1>
+        <p class="subtitle">Análise completa de confrontos com estatísticas avançadas e IA</p>
     </header>
 
-    <main class="container">
+    <main class="content">
 
-        <!-- ======================= PALPITES DO DIA ======================= -->
+        <!-- PALPITES DO DIA -->
         <div class="card collapsible">
             <div class="card-header" onclick="toggleSection('palpites')">
-                <span>🔥 Palpites do Dia</span>
+                <div class="icon"><span>🔥</span></div>
+                <span class="card-title">Palpites do Dia</span>
                 <span class="arrow">▼</span>
             </div>
             <div id="palpites" class="card-body collapse-content">
-                <p>Seleção automática dos 5 melhores palpites do dia (motor será conectado em breve).</p>
+                <p>Os 5 melhores palpites serão carregados aqui automaticamente.</p>
             </div>
         </div>
 
-        <!-- ====================== APOSTAS MÚLTIPLAS ====================== -->
+        <!-- APOSTAS MÚLTIPLAS -->
         <div class="card collapsible">
             <div class="card-header" onclick="toggleSection('multiplas')">
-                <span>🎯 Apostas Múltiplas</span>
+                <div class="icon"><span>📦</span></div>
+                <span class="card-title">Apostas Múltiplas</span>
                 <span class="arrow">▼</span>
             </div>
+
             <div id="multiplas" class="card-body collapse-content">
-                <p>Monte sua múltipla com base nos melhores indicadores estatísticos.</p>
+                <p>Monte múltiplas com base nos melhores indicadores estatísticos.</p>
             </div>
         </div>
 
-        <!-- =================== ANÁLISE DE CONFRONTO ====================== -->
-        <div class="card">
-            <div class="card-header">
-                <span>📊 Análise de Confronto</span>
+        <!-- ANÁLISE -->
+        <div class="card analysis-card">
+            <div class="analysis-header">
+                <div class="analysis-icon">📊</div>
+                <div class="analysis-title-block">
+                    <h2>Análise de Confronto</h2>
+                    <p>Selecione os times para análise H2H</p>
+                </div>
+
+                <button class="btn-secondary import-btn" onclick="openModal()">
+                    📂 Importar Liga/CSV
+                </button>
             </div>
 
-            <div class="card-body">
+            <div class="analysis-body">
 
-                <!-- Seleção de Liga -->
-                <label for="liga">Liga</label>
+                <label>Liga</label>
                 <select id="liga" class="select-input">
-                    <option value="">Selecione uma liga</option>
+                    <option value="">Selecionar liga</option>
                 </select>
 
-                <!-- Seleção Times -->
-                <div class="team-select-container">
+                <div class="team-row">
                     <div class="team-box">
                         <label>Time Mandante</label>
                         <select id="mandante" class="select-input">
-                            <option value="">Selecione</option>
+                            <option value="">Selecionar mandante</option>
                         </select>
                     </div>
 
                     <div class="team-box">
                         <label>Time Visitante</label>
                         <select id="visitante" class="select-input">
-                            <option value="">Selecione</option>
+                            <option value="">Selecionar visitante</option>
                         </select>
                     </div>
                 </div>
 
-                <!-- Botão Analisar -->
-                <button class="btn-primary">Analisar Confronto</button>
-
-                <!-- Botão Importar -->
-                <button class="btn-secondary" onclick="openModal()">📂 Importar Liga/CSV</button>
-
+                <button class="btn-primary analyze-btn">🔍 Analisar Confronto</button>
             </div>
         </div>
 
     </main>
 
-    <!-- ============================= MODAL ============================== -->
+    <!-- MODAL -->
     <div id="modal-bg" class="modal-bg" onclick="closeModal()"></div>
 
     <div id="modal" class="modal">
-
         <div class="modal-header">
             <h3>Importar Dados</h3>
             <button class="close-btn" onclick="closeModal()">×</button>
@@ -98,33 +99,33 @@
             <button class="tab" data-target="csv">Importar CSV</button>
         </div>
 
-        <!-- ========================= ABA NOVA LIGA ========================= -->
+        <!-- NOVA LIGA -->
         <div id="nova-liga" class="modal-content active">
+
             <label>Nome da Liga</label>
-            <input type="text" id="nomeLiga" placeholder="Ex: Premier League">
+            <input id="nomeLiga" type="text" placeholder="Ex: Premier League">
 
             <label>País (opcional)</label>
-            <input type="text" id="paisLiga" placeholder="Ex: Inglaterra">
+            <input id="paisLiga" type="text" placeholder="Ex: Inglaterra">
 
             <label>ID da Liga</label>
-            <input type="text" id="idLiga" placeholder="Ex: 39">
+            <input id="idLiga" type="text" placeholder="Ex: 39">
 
             <label>ID da Temporada</label>
-            <input type="text" id="idTemporada" placeholder="Ex: 2024">
+            <input id="idTemporada" type="text" placeholder="Ex: 2024">
 
-            <button class="btn-primary">Criar Liga</button>
+            <button onclick="criarLiga()" class="btn-primary full-btn">Criar Liga</button>
         </div>
 
-        <!-- ========================= ABA CSV ============================== -->
+        <!-- IMPORT CSV -->
         <div id="csv" class="modal-content">
             <label>Arquivo CSV dos Times</label>
-            <input type="file" id="arquivoCSV" accept=".csv">
+            <input type="file" id="arquivoCSV" accept=".csv" multiple>
 
-            <button class="btn-primary">Importar Times</button>
+            <button onclick="importarCSV()" class="btn-primary full-btn">Importar Times</button>
         </div>
     </div>
 
-    <!-- JS -->
     <script src="/static/js/main.js"></script>
 
 </body>
