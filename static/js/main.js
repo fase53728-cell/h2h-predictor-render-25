@@ -22,6 +22,7 @@ function closeModal() {
     modalBg.classList.remove("show");
     modal.classList.remove("show");
 }
+
 modalBg?.addEventListener("click", closeModal);
 
 // ===========================
@@ -33,7 +34,8 @@ document.querySelectorAll(".tab").forEach(tab => {
         document.querySelectorAll(".modal-content").forEach(c => c.classList.remove("active"));
 
         tab.classList.add("active");
-        document.getElementById(tab.getAttribute("data-target")).classList.add("active");
+        const target = tab.getAttribute("data-target");
+        document.getElementById(target).classList.add("active");
     });
 });
 
@@ -48,10 +50,21 @@ const API_BASE = "https://h2h-backend-fastapi-v2.onrender.com";
 async function loadLeagues() {
     try {
         const res = await fetch(`${API_BASE}/leagues`);
+        if (!res.ok) {
+            console.error("Erro HTTP ao listar ligas:", res.status);
+            return;
+        }
+
         const leagues = await res.json();
+        console.log("Ligas carregadas:", leagues);
 
         const mainSelect = document.getElementById("select-league");
         const modalSelect = document.getElementById("csv-league-select");
+
+        if (!mainSelect || !modalSelect) {
+            console.warn("Selects de liga não encontrados no HTML.");
+            return;
+        }
 
         mainSelect.innerHTML = `<option value="">Selecione...</option>`;
         modalSelect.innerHTML = `<option value="">Selecione...</option>`;
@@ -65,27 +78,39 @@ async function loadLeagues() {
         console.error("Erro ao carregar ligas:", err);
     }
 }
+
 loadLeagues();
 
 // ===========================
 //  CARREGAR TIMES DA LIGA
 // ===========================
-async function loadTeamsByLeague(league_id) {
-    if (!league_id) return;
-
+async function loadTeamsByLeague(leagueId) {
+    if (!leagueId) return;
     try {
-        const res = await fetch(`${API_BASE}/teams/${league_id}`);
+        const res = await fetch(`${API_BASE}/league/${leagueId}/teams`);
+        if (!res.ok) {
+            console.error("Erro HTTP ao listar times:", res.status);
+            return;
+        }
+
         const teams = await res.json();
+        console.log("Times da liga:", leagueId, teams);
 
         const home = document.getElementById("select-home");
         const away = document.getElementById("select-away");
+
+        if (!home || !away) {
+            console.warn("Selects de times não encontrados.");
+            return;
+        }
 
         home.innerHTML = `<option value="">Selecione...</option>`;
         away.innerHTML = `<option value="">Selecione...</option>`;
 
         teams.forEach(team => {
-            home.innerHTML += `<option value="${team}">${team}</option>`;
-            away.innerHTML += `<option value="${team}">${team}</option>`;
+            // team.name vem do backend
+            home.innerHTML += `<option value="${team.name}">${team.name}</option>`;
+            away.innerHTML += `<option value="${team.name}">${team.name}</option>`;
         });
 
     } catch (err) {
@@ -94,88 +119,122 @@ async function loadTeamsByLeague(league_id) {
 }
 
 document.getElementById("select-league")
-?.addEventListener("change", (e) => loadTeamsByLeague(e.target.value));
+    ?.addEventListener("change", (e) => loadTeamsByLeague(e.target.value));
 
 // ===========================
 //  CRIAR LIGA
 // ===========================
 document.getElementById("btn-create-league")
-?.addEventListener("click", async () => {
+    ?.addEventListener("click", async () => {
 
-    const name = document.getElementById("nomeLiga").value.trim();
-    const pais = document.getElementById("paisLiga").value.trim();
-    const league_id = document.getElementById("idLiga").value.trim();
-    const season_id = document.getElementById("idSeason").value.trim();
+        const nome = document.getElementById("nomeLiga")?.value.trim();
+        const pais = document.getElementById("paisLiga")?.value.trim();
+        const idLiga = document.getElementById("idLiga")?.value.trim();
+        const idSeason = document.getElementById("idSeason")?.value.trim();
 
-    if (!name || !league_id || !season_id) {
-        alert("Preencha nome da liga, id da liga e id da temporada.");
-        return;
-    }
+        // Para o backend atual, só usamos "name".
+        if (!nome) {
+            alert("Preencha pelo menos o Nome da Liga.");
+            return;
+        }
 
-    const payload = { name, league_id, season_id, country: pais };
+        const payload = { name: nome };
 
-    try {
-        const res = await fetch(`${API_BASE}/leagues`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        });
+        console.log("Enviando criação de liga:", payload);
 
-        if (res.ok) {
+        try {
+            const res = await fetch(`${API_BASE}/league`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                const errText = await res.text();
+                console.error("Erro HTTP ao criar liga:", res.status, errText);
+                alert("Erro ao criar liga.");
+                return;
+            }
+
+            const data = await res.json();
+            console.log("Liga criada:", data);
+
             alert("Liga criada com sucesso!");
             closeModal();
             loadLeagues();
-        } else {
-            alert("Erro ao criar liga.");
-        }
 
-    } catch (err) {
-        console.error(err);
-    }
-});
+        } catch (err) {
+            console.error("Erro JS ao criar liga:", err);
+            alert("Erro ao criar liga (ver console).");
+        }
+    });
 
 // ===========================
 //  IMPORTAR CSV DOS TIMES
 // ===========================
 document.getElementById("btn-upload-teams")
-?.addEventListener("click", async () => {
+    ?.addEventListener("click", async () => {
 
-    const league_id = document.getElementById("csv-league-select").value;
-    const files = document.getElementById("input-csv-files").files;
+        const leagueId = document.getElementById("csv-league-select")?.value;
+        const files = document.getElementById("input-csv-files")?.files;
 
-    if (!league_id) {
-        alert("Selecione uma liga.");
-        return;
-    }
-
-    if (!files.length) {
-        alert("Selecione arquivos CSV.");
-        return;
-    }
-
-    const form = new FormData();
-    form.append("league_id", league_id);
-
-    for (let f of files) {
-        form.append("files", f);
-    }
-
-    try {
-        const res = await fetch(`${API_BASE}/upload_csv`, {
-            method: "POST",
-            body: form
-        });
-
-        const data = await res.json();
-
-        if (data.status === "ok") {
-            alert("Times importados com sucesso!");
-            closeModal();
-        } else {
-            alert("Erro ao importar CSV.");
+        if (!leagueId) {
+            alert("Selecione uma liga.");
+            return;
         }
 
-    } catch (err) {
-        console.error(err);
+        if (!files || !files.length) {
+            alert("Selecione arquivos CSV.");
+            return;
+        }
+
+        try {
+            console.log(`Enviando ${files.length} arquivos para a liga:`, leagueId);
+
+            for (let f of files) {
+                const form = new FormData();
+                form.append("file", f);  // o backend espera campo "file"
+
+                const res = await fetch(`${API_BASE}/league/${leagueId}/upload-team`, {
+                    method: "POST",
+                    body: form
+                });
+
+                if (!res.ok) {
+                    const errText = await res.text();
+                    console.error("Erro HTTP ao enviar arquivo:", f.name, res.status, errText);
+                    alert(`Erro ao importar o arquivo: ${f.name}`);
+                    return;
+                }
+
+                const data = await res.json();
+                console.log("Time importado:", data);
+            }
+
+            alert("Times importados com sucesso!");
+            closeModal();
+            await loadTeamsByLeague(leagueId);
+
+        } catch (err) {
+            console.error("Erro JS ao importar CSVs:", err);
+            alert("Erro ao importar times (ver console).");
+        }
+    });
+
+// ===========================
+//  ANALISAR CONFRONTO (placeholder)
+// ===========================
+async function analyzeH2H() {
+    const leagueId = document.getElementById("select-league")?.value;
+    const home = document.getElementById("select-home")?.value;
+    const away = document.getElementById("select-away")?.value;
+
+    if (!leagueId || !home || !away) {
+        alert("Selecione a liga e os dois times.");
+        return;
     }
-});
+
+    alert(`(placeholder) Analisando: ${home} vs ${away} na liga ${leagueId}`);
+    // Depois ligamos aqui no endpoint:
+    // GET /league/{league_id}/h2h?home=...&away=...
+}
