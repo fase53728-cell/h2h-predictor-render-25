@@ -28,8 +28,9 @@
 
         <!-- Aba Nova Liga -->
         <div id="nova-liga" class="modal-content active">
+
             <label>Nome da Liga</label>
-            <input type="text" id="nomeLiga" placeholder="Ex: Premier League">
+            <input type="text" id="new-league-name" placeholder="Ex: Premier League">
 
             <label>Pais (opcional)</label>
             <input type="text" id="paisLiga" placeholder="Ex: Inglaterra">
@@ -46,17 +47,25 @@
                 </div>
             </div>
 
-            <button class="btn-primary">Criar Liga</button>
+            <!-- Botão Criar Liga -->
+            <button class="btn-primary" id="btn-create-league">Criar Liga</button>
         </div>
 
         <!-- Aba Importar CSV -->
         <div id="importar-csv" class="modal-content">
+
+            <label>Liga</label>
+            <select id="csv-league-select">
+                <option value="">Selecione a liga</option>
+            </select>
+
             <div class="upload-box">
-                <p>Selecionar arquivo CSV</p>
-                <input type="file" id="csvFile" accept=".csv">
+                <p>Selecionar arquivos CSV dos Times</p>
+                <input type="file" id="input-csv-files" accept=".csv" multiple>
             </div>
 
-            <button class="btn-primary">Importar Times</button>
+            <!-- Botão Importar -->
+            <button class="btn-primary" id="btn-upload-teams">Importar Times</button>
         </div>
     </div>
 
@@ -93,27 +102,27 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>Liga</label>
-                    <select id="ligaSelect">
+                    <select id="select-league">
                         <option value="">Selecione...</option>
                     </select>
                 </div>
 
                 <div class="form-group">
                     <label>Time Mandante</label>
-                    <select id="timeMandante">
-                        <option>Selecione...</option>
+                    <select id="select-home">
+                        <option value="">Selecione...</option>
                     </select>
                 </div>
 
                 <div class="form-group">
                     <label>Time Visitante</label>
-                    <select id="timeVisitante">
-                        <option>Selecione...</option>
+                    <select id="select-away">
+                        <option value="">Selecione...</option>
                     </select>
                 </div>
             </div>
 
-            <button class="btn-primary full">Analisar Confronto</button>
+            <button class="btn-primary full" onclick="analyzeH2H()">Analisar Confronto</button>
 
             <button class="btn-secondary" onclick="openModal()">Importar Liga/CSV</button>
         </div>
@@ -133,7 +142,7 @@
 
     </div>
 
-    <!-- JS -->
+    <!-- JS PRINCIPAL -->
     <script src="/static/js/main.js"></script>
 
 </body>
