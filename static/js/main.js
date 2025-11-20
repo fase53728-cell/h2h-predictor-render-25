@@ -1,41 +1,48 @@
-// URL do backend FastAPI (confere se é esse mesmo)
+// ============================
+// CONFIG
+// ============================
 const API_BASE = "https://h2h-fastapi-backend.onrender.com/api";
 
-// ---------- UTIL ----------
-
+// ============================
+// ALERTA SIMPLES
+// ============================
 function showAlert(msg) {
     alert(msg);
 }
 
-function toggleAccordion(event) {
-    const header = event.currentTarget;
-    const body = header.nextElementSibling;
-    body.style.display = body.style.display === "none" || body.style.display === "" ? "block" : "none";
-}
+// ============================
+// ACORDEÃO (COMPATÍVEL COM SEU CSS)
+// ============================
+document.addEventListener("click", (e) => {
+    if (e.target.closest(".collapsible .card-header")) {
+        const card = e.target.closest(".collapsible");
+        const body = card.querySelector(".card-body");
+        const arrow = card.querySelector(".arrow");
 
-// ---------- CARREGAR LIGAS ----------
+        const isOpen = body.style.display === "block";
 
+        body.style.display = isOpen ? "none" : "block";
+        arrow.style.transform = isOpen ? "rotate(0deg)" : "rotate(180deg)";
+    }
+});
+
+// ============================
+// CARREGAR LIGAS
+// ============================
 async function carregarLigas() {
     try {
         const res = await fetch(`${API_BASE}/leagues`);
         const data = await res.json();
 
-        const selectLiga = document.getElementById("selectLiga");
-        const selectLigaImport = document.getElementById("selectLigaImport");
+        const sel = document.getElementById("selectLiga");
+        const selImport = document.getElementById("selectLigaImport");
 
-        selectLiga.innerHTML = `<option value="">Selecione...</option>`;
-        selectLigaImport.innerHTML = `<option value="">Selecione...</option>`;
+        sel.innerHTML = `<option value="">Selecione...</option>`;
+        selImport.innerHTML = `<option value="">Selecione...</option>`;
 
         data.forEach(lg => {
-            const opt1 = document.createElement("option");
-            opt1.value = lg.league_id;
-            opt1.textContent = lg.name;
-            selectLiga.appendChild(opt1);
-
-            const opt2 = document.createElement("option");
-            opt2.value = lg.league_id;
-            opt2.textContent = lg.name;
-            selectLigaImport.appendChild(opt2);
+            sel.innerHTML += `<option value="${lg.league_id}">${lg.name}</option>`;
+            selImport.innerHTML += `<option value="${lg.league_id}">${lg.name}</option>`;
         });
     } catch (err) {
         console.error(err);
@@ -43,177 +50,121 @@ async function carregarLigas() {
     }
 }
 
-// ---------- CARREGAR TIMES DA LIGA ----------
-
+// ============================
+// CARREGAR TIMES
+// ============================
 async function carregarTimes(leagueId) {
     if (!leagueId) return;
 
-    try {
-        const res = await fetch(`${API_BASE}/leagues/${leagueId}/teams`);
-        const data = await res.json();
+    const res = await fetch(`${API_BASE}/leagues/${leagueId}/teams`);
+    const data = await res.json();
 
-        const selHome = document.getElementById("selectMandante");
-        const selAway = document.getElementById("selectVisitante");
+    const selHome = document.getElementById("selectMandante");
+    const selAway = document.getElementById("selectVisitante");
 
-        selHome.innerHTML = `<option value="">Selecione...</option>`;
-        selAway.innerHTML = `<option value="">Selecione...</option>`;
+    selHome.innerHTML = `<option value="">Selecione...</option>`;
+    selAway.innerHTML = `<option value="">Selecione...</option>`;
 
-        data.forEach(team => {
-            const optH = document.createElement("option");
-            optH.value = team.slug || team.name || team;
-            optH.textContent = team.display_name || team.name || team;
-            selHome.appendChild(optH);
-
-            const optA = document.createElement("option");
-            optA.value = team.slug || team.name || team;
-            optA.textContent = team.display_name || team.name || team;
-            selAway.appendChild(optA);
-        });
-    } catch (err) {
-        console.error(err);
-        showAlert("Erro ao carregar times da liga.");
-    }
+    data.forEach(team => {
+        selHome.innerHTML += `<option value="${team}">${team}</option>`;
+        selAway.innerHTML += `<option value="${team}">${team}</option>`;
+    });
 }
 
-// ---------- ANÁLISE DE CONFRONTO ----------
-
+// ============================
+// ANÁLISE DE CONFRONTO
+// ============================
 async function analisarConfronto() {
-    const leagueId = document.getElementById("selectLiga").value;
+    const liga = document.getElementById("selectLiga").value;
     const home = document.getElementById("selectMandante").value;
     const away = document.getElementById("selectVisitante").value;
 
-    if (!leagueId || !home || !away) {
-        showAlert("Selecione liga, mandante e visitante.");
-        return;
-    }
+    if (!liga || !home || !away) return showAlert("Selecione todos os campos.");
 
-    try {
-        const url = `${API_BASE}/h2h?league_id=${encodeURIComponent(leagueId)}&home=${encodeURIComponent(home)}&away=${encodeURIComponent(away)}`;
-        const res = await fetch(url);
-        const data = await res.json();
+    const res = await fetch(`${API_BASE}/h2h?league_id=${liga}&home=${home}&away=${away}`);
+    const data = await res.json();
 
-        const card = document.getElementById("resultadoCard");
-        const pre = document.getElementById("resultadoTexto");
-
-        pre.textContent = JSON.stringify(data, null, 2);
-        card.style.display = "block";
-    } catch (err) {
-        console.error(err);
-        showAlert("Erro ao analisar confronto.");
-    }
+    document.getElementById("resultadoTexto").textContent = JSON.stringify(data, null, 2);
+    document.getElementById("resultadoCard").style.display = "block";
 }
 
-// ---------- CRIAR LIGA ----------
-
-function abrirModalCriarLiga() {
-    document.getElementById("modalCriarLiga").style.display = "block";
+// ============================
+// MODALS (COMPATÍVEL COM SEU CSS ORIGINAL)
+// ============================
+function showModal(idModal, idBg) {
+    document.getElementById(idModal).classList.add("show");
+    document.getElementById(idBg).classList.add("show");
 }
 
-function fecharModalCriarLiga() {
-    document.getElementById("modalCriarLiga").style.display = "none";
+function hideModal(idModal, idBg) {
+    document.getElementById(idModal).classList.remove("show");
+    document.getElementById(idBg).classList.remove("show");
 }
 
+// Criar Liga
+document.getElementById("btnAbrirCriarLiga").onclick = () =>
+    showModal("modalCriarLiga", "modalCriarLigaBg");
+
+document.getElementById("closeCriarLiga").onclick =
+    document.getElementById("cancelarCriarLiga").onclick = () =>
+        hideModal("modalCriarLiga", "modalCriarLigaBg");
+
+// Salvar Liga
 async function salvarLiga() {
-    const nome = document.getElementById("inputNomeLiga").value.trim();
-    const season = document.getElementById("inputSeasonId").value.trim();
+    const nome = document.getElementById("inputNomeLiga").value;
+    const season = document.getElementById("inputSeasonId").value;
 
-    if (!nome || !season) {
-        showAlert("Preencha nome da liga e season ID.");
-        return;
-    }
+    const league_id = nome.toLowerCase().replace(/\s+/g, "-");
 
-    const league_id = nome.toLowerCase()
-        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^\w\s-]/g, "")
-        .replace(/\s+/g, "-");
+    const res = await fetch(`${API_BASE}/leagues`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ league_id, name: nome, season_id: season })
+    });
 
-    try {
-        const res = await fetch(`${API_BASE}/leagues`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                league_id,
-                name: nome,
-                season_id: season
-            })
-        });
+    const data = await res.json();
+    showAlert(data.message || "Liga criada!");
 
-        const data = await res.json();
-        showAlert(data.message || "Liga criada.");
-        fecharModalCriarLiga();
-        carregarLigas();
-    } catch (err) {
-        console.error(err);
-        showAlert("Erro ao criar liga.");
-    }
+    hideModal("modalCriarLiga", "modalCriarLigaBg");
+    carregarLigas();
 }
 
-// ---------- IMPORTAR CSV ----------
+document.getElementById("btnSalvarLiga").onclick = salvarLiga;
 
-function abrirModalImportarCSV() {
-    document.getElementById("modalImportarCSV").style.display = "block";
-}
+// Importar CSV
+document.getElementById("btnAbrirImportarCSV").onclick = () =>
+    showModal("modalImportarCSV", "modalImportarBg");
 
-function fecharModalImportarCSV() {
-    document.getElementById("modalImportarCSV").style.display = "none";
-}
+document.getElementById("closeImportarCSV").onclick =
+    document.getElementById("cancelarImportarCSV").onclick = () =>
+        hideModal("modalImportarCSV", "modalImportarBg");
 
 async function importarCSV() {
-    const leagueId = document.getElementById("selectLigaImport").value;
-    const fileInput = document.getElementById("inputArquivoCSV");
-    const file = fileInput.files[0];
+    const liga = document.getElementById("selectLigaImport").value;
+    const file = document.getElementById("inputArquivoCSV").files[0];
 
-    if (!leagueId || !file) {
-        showAlert("Escolha a liga e o arquivo CSV.");
-        return;
-    }
+    if (!liga || !file) return showAlert("Selecione liga e arquivo.");
 
-    const formData = new FormData();
-    formData.append("league_id", leagueId);
-    formData.append("file", file);
+    const form = new FormData();
+    form.append("league_id", liga);
+    form.append("file", file);
 
-    try {
-        const res = await fetch(`${API_BASE}/leagues/${leagueId}/upload-team`, {
-            method: "POST",
-            body: formData
-        });
+    const res = await fetch(`${API_BASE}/leagues/${liga}/upload-team`, {
+        method: "POST",
+        body: form,
+    });
 
-        const data = await res.json();
-        showAlert(data.message || "CSV importado.");
-        fecharModalImportarCSV();
-        fileInput.value = "";
-    } catch (err) {
-        console.error(err);
-        showAlert("Erro ao importar CSV.");
-    }
+    const data = await res.json();
+    showAlert(data.message || "CSV importado");
+
+    hideModal("modalImportarCSV", "modalImportarBg");
 }
 
-// ---------- INIT / EVENTOS ----------
+document.getElementById("btnImportarArquivo").onclick = importarCSV;
 
-document.addEventListener("DOMContentLoaded", () => {
-    // accordion
-    document.querySelectorAll(".accordion-header").forEach(btn => {
-        btn.addEventListener("click", toggleAccordion);
-    });
+// ============================
+// INIT
+// ============================
+document.getElementById("selectLiga").onchange = e => carregarTimes(e.target.value);
 
-    // selects
-    document.getElementById("selectLiga").addEventListener("change", (e) => {
-        carregarTimes(e.target.value);
-    });
-
-    // botões principais
-    document.getElementById("btnAnalisar").addEventListener("click", analisarConfronto);
-
-    // criar liga
-    document.getElementById("btnAbrirCriarLiga").addEventListener("click", abrirModalCriarLiga);
-    document.getElementById("btnFecharCriarLiga").addEventListener("click", fecharModalCriarLiga);
-    document.getElementById("btnSalvarLiga").addEventListener("click", salvarLiga);
-
-    // importar csv
-    document.getElementById("btnAbrirImportarCSV").addEventListener("click", abrirModalImportarCSV);
-    document.getElementById("btnFecharImportarCSV").addEventListener("click", fecharModalImportarCSV);
-    document.getElementById("btnImportarArquivo").addEventListener("click", importarCSV);
-
-    // carrega ligas no início
-    carregarLigas();
-});
+carregarLigas();
