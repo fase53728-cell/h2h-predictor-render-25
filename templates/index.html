@@ -1,142 +1,152 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>H2H Predictor</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H2H Predictor</title>
 
-  <!-- IMPORTANTE: nome do arquivo é style.css (sem S) -->
-  <link rel="stylesheet" href="/static/css/style.css" />
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 
 <body>
-  <div class="page-bg">
-    <div class="page-container">
-      <!-- HEADER / HERO -->
-      <header class="header">
-        <h1>H2H Predictor</h1>
-        <p>Análise completa de confrontos com estatísticas avançadas e IA</p>
-      </header>
 
-      <!-- PALPITES DO DIA -->
-      <section class="card collapsible">
-        <button class="card-header" onclick="toggleSection('palpites')">
-          <div class="card-header-left">
-            <span class="icon-pill icon-gold">🔥</span>
-            <span class="card-title">Palpites do Dia</span>
-          </div>
-          <span class="arrow">▼</span>
-        </button>
-        <div id="palpites" class="card-body collapse-content">
-          <p class="muted">
-            Seleção automática dos 5 melhores palpites do dia (motor será conectado em breve).
-          </p>
-        </div>
-      </section>
+    <!-- Modal BG -->
+    <div id="modal-bg" class="modal-bg"></div>
 
-      <!-- APOSTAS MÚLTIPLAS -->
-      <section class="card collapsible">
-        <button class="card-header" onclick="toggleSection('multiplas')">
-          <div class="card-header-left">
-            <span class="icon-pill icon-purple">📦</span>
-            <span class="card-title">Apostas Múltiplas</span>
-          </div>
-          <span class="arrow">▼</span>
-        </button>
-        <div id="multiplas" class="card-body collapse-content">
-          <p class="muted">
-            Monte sua múltipla com base nos melhores indicadores estatísticos.
-          </p>
-        </div>
-      </section>
-
-      <!-- ANÁLISE DE CONFRONTO -->
-      <section class="card">
-        <div class="card-header no-click">
-          <div class="card-header-left">
-            <span class="icon-pill icon-green">📊</span>
-            <span class="card-title">Análise de Confronto</span>
-          </div>
-          <button class="btn-secondary" onclick="openModal()">📂 Importar Liga/CSV</button>
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-header">
+            <h3>Importar Dados</h3>
+            <button class="close-btn" onclick="closeModal()">✕</button>
         </div>
 
-        <div class="card-body">
-          <!-- LIGA -->
-          <label for="liga" class="label">Liga</label>
-          <select id="liga" class="select-input">
-            <option value="">Selecione uma liga</option>
-          </select>
+        <div class="modal-tabs">
+            <button class="tab active" data-target="nova-liga">Nova Liga</button>
+            <button class="tab" data-target="importar-csv">Importar CSV</button>
+        </div>
 
-          <!-- TIMES -->
-          <div class="team-select-row">
-            <div class="team-box">
-              <label class="label" for="mandante">Time Mandante</label>
-              <select id="mandante" class="select-input">
-                <option value="">Selecionar mandante</option>
-              </select>
+        <!-- Aba Nova Liga -->
+        <div id="nova-liga" class="modal-content active">
+            <label>Nome da Liga</label>
+            <input type="text" id="nomeLiga" placeholder="Ex: Premier League">
+
+            <label>Pais (opcional)</label>
+            <input type="text" id="paisLiga" placeholder="Ex: Inglaterra">
+
+            <div class="split">
+                <div>
+                    <label>ID da Liga</label>
+                    <input type="text" id="idLiga" placeholder="Ex: 39">
+                </div>
+
+                <div>
+                    <label>ID da Temporada</label>
+                    <input type="text" id="idSeason" placeholder="Ex: 2024">
+                </div>
             </div>
-            <div class="team-box">
-              <label class="label" for="visitante">Time Visitante</label>
-              <select id="visitante" class="select-input">
-                <option value="">Selecionar visitante</option>
-              </select>
-            </div>
-          </div>
 
-          <!-- BOTÃO ANALISAR -->
-          <button id="btn-analisar" class="btn-primary full-width">
-            🔍 Analisar Confronto
-          </button>
+            <!-- AQUI: botão com ID correto -->
+            <button id="btn-create-league" class="btn-primary">Criar Liga</button>
         </div>
-      </section>
-    </div>
-  </div>
 
-  <!-- MODAL DE IMPORTAÇÃO -->
-  <div id="modal-bg" class="modal-bg" onclick="closeModal()"></div>
+        <!-- Aba Importar CSV -->
+        <div id="importar-csv" class="modal-content">
+            <!-- AQUI: select da liga para importar times -->
+            <label>Selecionar Liga</label>
+            <select id="csv-league-select" class="select-input">
+                <option value="">Selecione...</option>
+            </select>
 
-  <div id="modal" class="modal" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      <h3>Importar Dados</h3>
-      <button class="close-btn" onclick="closeModal()">×</button>
-    </div>
+            <div class="upload-box">
+                <p>Selecionar arquivos CSV dos times</p>
+                <!-- AQUI: id que o JS usa -->
+                <input type="file" id="input-csv-files" accept=".csv" multiple>
+            </div>
 
-    <div class="modal-tabs">
-      <button class="tab active" data-target="nova-liga">Nova Liga</button>
-      <button class="tab" data-target="csv">Importar CSV</button>
-    </div>
-
-    <!-- ABA NOVA LIGA -->
-    <div id="nova-liga" class="modal-content active">
-      <label class="label">Nome da Liga</label>
-      <input type="text" id="nomeLiga" class="input" placeholder="Ex: Premier League" />
-
-      <label class="label">País (opcional)</label>
-      <input type="text" id="paisLiga" class="input" placeholder="Ex: Inglaterra" />
-
-      <label class="label">ID da Liga</label>
-      <input type="text" id="idLiga" class="input" placeholder="Ex: 39" />
-
-      <label class="label">ID da Temporada</label>
-      <input type="text" id="idTemporada" class="input" placeholder="Ex: 2024" />
-
-      <button class="btn-primary" onclick="createLeague()">Criar Liga</button>
+            <!-- AQUI: botão com ID correto -->
+            <button id="btn-upload-teams" class="btn-primary">Importar Times</button>
+        </div>
     </div>
 
-    <!-- ABA CSV -->
-    <div id="csv" class="modal-content">
-      <label class="label">Liga</label>
-      <select id="ligaImport" class="select-input">
-        <option value="">Selecione a liga</option>
-      </select>
+    <!-- Conteúdo Principal -->
+    <div class="container">
 
-      <label class="label">Arquivos CSV dos Times</label>
-      <input type="file" id="arquivoCSV" class="input" multiple accept=".csv" />
+        <!-- Palpites do Dia -->
+        <div class="card collapsible">
+            <div class="card-header">
+                <h3>Palpites do Dia</h3>
+                <span class="arrow">▼</span>
+            </div>
+            <div class="card-body">
+                <p>Aqui aparecerão os 5 melhores palpites automáticos.</p>
+            </div>
+        </div>
 
-      <button class="btn-primary" onclick="importTeams()">Importar Times</button>
+        <!-- Apostas Múltiplas -->
+        <div class="card collapsible">
+            <div class="card-header">
+                <h3>Apostas Múltiplas</h3>
+                <span class="arrow">▼</span>
+            </div>
+            <div class="card-body">
+                <p>Aqui aparecerão as combinações de apostas recomendadas.</p>
+            </div>
+        </div>
+
+        <!-- Análise de Confronto -->
+        <div class="card">
+            <h3>Análise de Confronto</h3>
+            <p>Selecione os times para análise H2H</p>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Liga</label>
+                    <!-- AQUI: id que o JS usa -->
+                    <select id="select-league">
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Time Mandante</label>
+                    <!-- AQUI: id que o JS usa -->
+                    <select id="select-home">
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Time Visitante</label>
+                    <!-- AQUI: id que o JS usa -->
+                    <select id="select-away">
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn-primary full" onclick="analyzeH2H()">Analisar Confronto</button>
+
+            <button class="btn-secondary" onclick="openModal()">Importar Liga/CSV</button>
+        </div>
+
+        <!-- Cards dos Times (mock) -->
+        <div class="teams-container">
+            <div class="team-card">
+                <div class="team-title">Liverpool</div>
+                <div class="team-tag green">Mandante</div>
+            </div>
+
+            <div class="team-card">
+                <div class="team-title">Manchester City</div>
+                <div class="team-tag blue">Visitante</div>
+            </div>
+        </div>
+
     </div>
-  </div>
 
-  <script src="/static/js/main.js"></script>
+    <!-- JS -->
+    <script src="/static/js/main.js"></script>
+
 </body>
 </html>
