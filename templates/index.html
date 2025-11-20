@@ -10,7 +10,6 @@
 
 <body>
     <div class="page-bg">
-
         <div class="page-container">
 
             <!-- HEADER -->
@@ -19,15 +18,16 @@
                 <p>Análise completa de confrontos com estatísticas avançadas e IA</p>
             </header>
 
-            <!-- PALPITES DO DIA -->
+            <!-- PALPITES -->
             <section class="card collapsible">
-                <button class="card-header">
+                <button class="card-header" onclick="toggleSection('palpites')">
                     <div class="card-header-left">
                         <span class="icon-pill icon-gold">🔥</span>
                         <span class="card-title">Palpites do Dia</span>
                     </div>
                     <span class="arrow">▼</span>
                 </button>
+
                 <div id="palpites" class="collapse-content">
                     <div class="card-body">
                         <p class="muted">Os 5 melhores palpites aparecerão aqui.</p>
@@ -35,15 +35,16 @@
                 </div>
             </section>
 
-            <!-- APOSTAS MÚLTIPLAS -->
+            <!-- MULTIPLAS -->
             <section class="card collapsible">
-                <button class="card-header">
+                <button class="card-header" onclick="toggleSection('multiplas')">
                     <div class="card-header-left">
                         <span class="icon-pill icon-purple">⚡</span>
                         <span class="card-title">Apostas Múltiplas</span>
                     </div>
                     <span class="arrow">▼</span>
                 </button>
+
                 <div id="multiplas" class="collapse-content">
                     <div class="card-body">
                         <p class="muted">Suas múltiplas sugeridas aparecerão aqui.</p>
@@ -51,14 +52,15 @@
                 </div>
             </section>
 
-            <!-- ANÁLISE H2H -->
+            <!-- ANALISE -->
             <section class="card">
-                <div class="card-header no-click">
+                <button class="card-header no-click">
                     <div class="card-header-left">
                         <span class="icon-pill icon-green">📊</span>
                         <span class="card-title">Análise de Confronto</span>
                     </div>
-                </div>
+                </button>
+
                 <div class="card-body">
 
                     <label class="label">Liga</label>
@@ -66,27 +68,22 @@
                         <option value="">Selecione...</option>
                     </select>
 
-                    <div class="team-select-row">
-                        <div class="team-box">
-                            <label class="label">Time Mandante</label>
-                            <select id="select-home" class="select-input">
-                                <option value="">Selecione...</option>
-                            </select>
-                        </div>
+                    <label class="label">Time Mandante</label>
+                    <select id="select-home" class="select-input">
+                        <option value="">Selecione...</option>
+                    </select>
 
-                        <div class="team-box">
-                            <label class="label">Time Visitante</label>
-                            <select id="select-away" class="select-input">
-                                <option value="">Selecione...</option>
-                            </select>
-                        </div>
-                    </div>
+                    <label class="label">Time Visitante</label>
+                    <select id="select-away" class="select-input">
+                        <option value="">Selecione...</option>
+                    </select>
 
-                    <button class="btn-primary full-width" onclick="analyzeH2H()">Analisar Confronto</button>
+                    <button class="btn-primary full-width" onclick="analyzeH2H()">
+                        Analisar Confronto
+                    </button>
 
-                    <br />
-
-                    <button class="btn-secondary" onclick="openModal()">
+                    <button class="btn-secondary full-width" style="margin-top:14px"
+                        onclick="openModal()">
                         📁 Importar Liga / CSV
                     </button>
                 </div>
@@ -95,9 +92,7 @@
         </div>
     </div>
 
-    <!-- ======================= -->
-    <!--       MODAL            -->
-    <!-- ======================= -->
+    <!-- ======================= MODAL ======================= -->
 
     <div id="modal-bg" class="modal-bg"></div>
 
@@ -109,45 +104,53 @@
         </div>
 
         <div class="modal-tabs">
-            <button class="tab active" data-target="tab-nova-liga">Nova Liga</button>
-            <button class="tab" data-target="tab-importar-csv">Importar CSV</button>
+            <button class="tab active" data-target="nova-liga">Nova Liga</button>
+            <button class="tab" data-target="importar-csv">Importar CSV</button>
         </div>
 
         <!-- NOVA LIGA -->
-        <div id="tab-nova-liga" class="modal-content active">
-
+        <div id="nova-liga" class="modal-content active">
             <label class="label">Nome da Liga</label>
-            <input type="text" id="nomeLiga" class="input" placeholder="Ex: LaLiga" />
+            <input id="nomeLiga" class="input" placeholder="Ex: LaLiga">
 
             <label class="label">País (opcional)</label>
-            <input type="text" id="paisLiga" class="input" placeholder="Ex: Espanha" />
+            <input id="paisLiga" class="input" placeholder="Ex: Espanha">
 
-            <label class="label">ID da Liga</label>
-            <input type="text" id="idLiga" class="input" placeholder="Ex: 37" />
+            <div class="team-select-row">
+                <div class="team-box">
+                    <label class="label">ID da Liga</label>
+                    <input id="idLiga" class="input" placeholder="Ex: 37">
+                </div>
 
-            <label class="label">ID da Temporada</label>
-            <input type="text" id="idSeason" class="input" placeholder="Ex: 2025" />
+                <div class="team-box">
+                    <label class="label">ID da Temporada</label>
+                    <input id="idSeason" class="input" placeholder="Ex: 2025">
+                </div>
+            </div>
 
-            <button id="btn-create-league" class="btn-primary full-width">Criar Liga</button>
-
+            <button id="btn-create-league" class="btn-primary full-width">
+                Criar Liga
+            </button>
         </div>
 
         <!-- IMPORTAR CSV -->
-        <div id="tab-importar-csv" class="modal-content">
-
-            <label class="label">Selecione a Liga</label>
+        <div id="importar-csv" class="modal-content">
+            <label class="label">Liga</label>
             <select id="csv-league-select" class="select-input">
                 <option value="">Selecione...</option>
             </select>
 
             <label class="label">Arquivos CSV dos Times</label>
-            <input id="input-csv-files" type="file" multiple accept=".csv" class="input" />
+            <input id="input-csv-files" multiple type="file" accept=".csv" class="input">
 
-            <button id="btn-upload-teams" class="btn-primary full-width">Importar Times</button>
-
+            <button id="btn-upload-teams" class="btn-primary full-width">
+                Importar Times
+            </button>
         </div>
+
     </div>
 
     <script src="/static/js/main.js"></script>
+
 </body>
 </html>
