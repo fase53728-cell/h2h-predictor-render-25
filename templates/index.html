@@ -1,156 +1,147 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
     <title>H2H Predictor</title>
-
-    <link rel="stylesheet" href="/static/css/style.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-
 <body>
-    <div class="page-bg">
-        <div class="page-container">
+<div class="page-bg">
+    <div class="page-container">
 
-            <!-- HEADER -->
-            <header class="header">
-                <h1>H2H Predictor</h1>
-                <p>Análise completa de confrontos com estatísticas avançadas e IA</p>
-            </header>
+        <!-- HEADER -->
+        <header class="header">
+            <h1>H2H Predictor</h1>
+            <p>Análise completa de confrontos com estatísticas avançadas e IA.</p>
+        </header>
 
-            <!-- PALPITES -->
-            <section class="card collapsible">
-                <button class="card-header" onclick="toggleSection('palpites')">
-                    <div class="card-header-left">
-                        <span class="icon-pill icon-gold">🔥</span>
-                        <span class="card-title">Palpites do Dia</span>
-                    </div>
-                    <span class="arrow">▼</span>
-                </button>
+        <!-- PALPITES DO DIA -->
+        <section class="card accordion">
+            <button class="accordion-header" type="button">
+                <span>🔥 Palpites do Dia</span>
+                <span class="accordion-icon">▼</span>
+            </button>
+            <div class="accordion-body" id="palpitesDiaBody">
+                <p>Os 5 melhores palpites aparecerão aqui.</p>
+            </div>
+        </section>
 
-                <div id="palpites" class="collapse-content">
-                    <div class="card-body">
-                        <p class="muted">Os 5 melhores palpites aparecerão aqui.</p>
-                    </div>
-                </div>
-            </section>
+        <!-- APOSTAS MÚLTIPLAS -->
+        <section class="card accordion">
+            <button class="accordion-header" type="button">
+                <span>⚡ Apostas Múltiplas</span>
+                <span class="accordion-icon">▼</span>
+            </button>
+            <div class="accordion-body" id="apostasMultiplasBody">
+                <p>Suas múltiplas sugeridas aparecerão aqui.</p>
+            </div>
+        </section>
 
-            <!-- MULTIPLAS -->
-            <section class="card collapsible">
-                <button class="card-header" onclick="toggleSection('multiplas')">
-                    <div class="card-header-left">
-                        <span class="icon-pill icon-purple">⚡</span>
-                        <span class="card-title">Apostas Múltiplas</span>
-                    </div>
-                    <span class="arrow">▼</span>
-                </button>
+        <!-- ANÁLISE DE CONFRONTO -->
+        <section class="card analysis-card">
+            <h2>Análise de Confronto</h2>
 
-                <div id="multiplas" class="collapse-content">
-                    <div class="card-body">
-                        <p class="muted">Suas múltiplas sugeridas aparecerão aqui.</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ANALISE -->
-            <section class="card">
-                <button class="card-header no-click">
-                    <div class="card-header-left">
-                        <span class="icon-pill icon-green">📊</span>
-                        <span class="card-title">Análise de Confronto</span>
-                    </div>
-                </button>
-
-                <div class="card-body">
-
-                    <label class="label">Liga</label>
-                    <select id="select-league" class="select-input">
-                        <option value="">Selecione...</option>
-                    </select>
-
-                    <label class="label">Time Mandante</label>
-                    <select id="select-home" class="select-input">
-                        <option value="">Selecione...</option>
-                    </select>
-
-                    <label class="label">Time Visitante</label>
-                    <select id="select-away" class="select-input">
-                        <option value="">Selecione...</option>
-                    </select>
-
-                    <button class="btn-primary full-width" onclick="analyzeH2H()">
-                        Analisar Confronto
-                    </button>
-
-                    <button class="btn-secondary full-width" style="margin-top:14px"
-                        onclick="openModal()">
-                        📁 Importar Liga / CSV
-                    </button>
-                </div>
-            </section>
-
-        </div>
-    </div>
-
-    <!-- ======================= MODAL ======================= -->
-
-    <div id="modal-bg" class="modal-bg"></div>
-
-    <div id="modal" class="modal">
-
-        <div class="modal-header">
-            <h3>Importar Dados</h3>
-            <button class="close-btn" onclick="closeModal()">✕</button>
-        </div>
-
-        <div class="modal-tabs">
-            <button class="tab active" data-target="nova-liga">Nova Liga</button>
-            <button class="tab" data-target="importar-csv">Importar CSV</button>
-        </div>
-
-        <!-- NOVA LIGA -->
-        <div id="nova-liga" class="modal-content active">
-            <label class="label">Nome da Liga</label>
-            <input id="nomeLiga" class="input" placeholder="Ex: LaLiga">
-
-            <label class="label">País (opcional)</label>
-            <input id="paisLiga" class="input" placeholder="Ex: Espanha">
-
-            <div class="team-select-row">
-                <div class="team-box">
-                    <label class="label">ID da Liga</label>
-                    <input id="idLiga" class="input" placeholder="Ex: 37">
-                </div>
-
-                <div class="team-box">
-                    <label class="label">ID da Temporada</label>
-                    <input id="idSeason" class="input" placeholder="Ex: 2025">
-                </div>
+            <div class="form-group">
+                <label for="selectLiga">Liga</label>
+                <select id="selectLiga">
+                    <option value="">Selecione...</option>
+                </select>
             </div>
 
-            <button id="btn-create-league" class="btn-primary full-width">
-                Criar Liga
+            <div class="form-group">
+                <label for="selectMandante">Time Mandante</label>
+                <select id="selectMandante">
+                    <option value="">Selecione...</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="selectVisitante">Time Visitante</label>
+                <select id="selectVisitante">
+                    <option value="">Selecione...</option>
+                </select>
+            </div>
+
+            <button id="btnAnalisar" class="primary-btn">
+                Analisar Confronto
             </button>
+
+            <!-- Barra de ações para Criar Liga / Importar CSV -->
+            <div class="import-toolbar">
+                <button id="btnAbrirCriarLiga" class="secondary-btn">
+                    Criar Liga
+                </button>
+                <button id="btnAbrirImportarCSV" class="secondary-btn">
+                    Importar Liga / CSV
+                </button>
+            </div>
+        </section>
+
+        <!-- RESULTADO DA ANÁLISE -->
+        <section class="card" id="resultadoCard" style="display:none;">
+            <h2>Resultado da Análise</h2>
+            <pre id="resultadoTexto"></pre>
+        </section>
+
+        <!-- MODAL CRIAR LIGA -->
+        <div class="modal" id="modalCriarLiga" style="display:none;">
+            <div class="modal-backdrop"></div>
+            <div class="modal-content">
+                <h3>Criar nova liga</h3>
+
+                <div class="form-group">
+                    <label for="inputNomeLiga">Nome da liga</label>
+                    <input id="inputNomeLiga" type="text" placeholder="Ex: La Liga - Espanha">
+                </div>
+
+                <div class="form-group">
+                    <label for="inputSeasonId">Season ID (SofaScore)</label>
+                    <input id="inputSeasonId" type="text" placeholder="Ex: 41886">
+                </div>
+
+                <div class="modal-actions">
+                    <button id="btnFecharCriarLiga" class="secondary-btn light">
+                        Cancelar
+                    </button>
+                    <button id="btnSalvarLiga" class="primary-btn">
+                        Salvar Liga
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <!-- IMPORTAR CSV -->
-        <div id="importar-csv" class="modal-content">
-            <label class="label">Liga</label>
-            <select id="csv-league-select" class="select-input">
-                <option value="">Selecione...</option>
-            </select>
+        <!-- MODAL IMPORTAR CSV -->
+        <div class="modal" id="modalImportarCSV" style="display:none;">
+            <div class="modal-backdrop"></div>
+            <div class="modal-content">
+                <h3>Importar CSV de Times</h3>
 
-            <label class="label">Arquivos CSV dos Times</label>
-            <input id="input-csv-files" multiple type="file" accept=".csv" class="input">
+                <div class="form-group">
+                    <label for="selectLigaImport">Liga</label>
+                    <select id="selectLigaImport">
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
 
-            <button id="btn-upload-teams" class="btn-primary full-width">
-                Importar Times
-            </button>
+                <div class="form-group">
+                    <label for="inputArquivoCSV">Arquivo CSV do time</label>
+                    <input id="inputArquivoCSV" type="file" accept=".csv">
+                </div>
+
+                <div class="modal-actions">
+                    <button id="btnFecharImportarCSV" class="secondary-btn light">
+                        Cancelar
+                    </button>
+                    <button id="btnImportarArquivo" class="primary-btn">
+                        Importar
+                    </button>
+                </div>
+            </div>
         </div>
 
     </div>
+</div>
 
-    <script src="/static/js/main.js"></script>
-
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
