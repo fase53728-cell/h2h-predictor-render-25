@@ -23,7 +23,6 @@ function closeModal() {
     modal.style.display = "none";
 }
 
-// Fecha clicando no fundo
 modalBg?.addEventListener("click", closeModal);
 
 // ===========================
@@ -41,32 +40,167 @@ document.querySelectorAll(".tab").forEach(tab => {
 });
 
 // ===========================
-//  BUSCAR TIMES DA LIGA
+//  API BASE
 // ===========================
-async function loadTeamsByLeague(leagueName) {
-    if (!leagueName) return;
+const API_BASE = "https://h2h-backend-fastapi-v2.onrender.com";
 
-    const response = await fetch(`/api/teams/${leagueName}`);
-    const teams = await response.json();
+// ===========================
+//  CARREGAR LIGAS AO INICIAR
+// ===========================
+async function loadLeagues() {
+    try {
+        const res = await fetch(`${API_BASE}/leagues`);
+        const leagues = await res.json();
 
-    const mandante = document.getElementById("timeMandante");
-    const visitante = document.getElementById("timeVisitante");
+        const mainSelect = document.getElementById("select-league");
+        const modalSelect = document.getElementById("csv-league-select");
 
-    mandante.innerHTML = "";
-    visitante.innerHTML = "";
+        mainSelect.innerHTML = `<option value="">Selecione...</option>`;
+        modalSelect.innerHTML = `<option value="">Selecione...</option>`;
 
-    teams.forEach(team => {
-        mandante.innerHTML += `<option value="${team}">${team}</option>`;
-        visitante.innerHTML += `<option value="${team}">${team}</option>`;
-    });
+        leagues.forEach(league => {
+            mainSelect.innerHTML += `<option value="${league.league_id}">${league.name}</option>`;
+            modalSelect.innerHTML += `<option value="${league.league_id}">${league.name}</option>`;
+        });
+
+    } catch (e) {
+        console.error("Erro ao carregar ligas:", e);
+    }
+}
+
+loadLeagues();
+
+// ===========================
+//  CARREGAR TIMES DA LIGA
+// ===========================
+async function loadTeamsByLeague(leagueId) {
+    if (!leagueId) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/teams/${leagueId}`);
+        const teams = await res.json();
+
+        const home = document.getElementById("select-home");
+        const away = document.getElementById("select-away");
+
+        home.innerHTML = `<option value="">Selecione...</option>`;
+        away.innerHTML = `<option value="">Selecione...</option>`;
+
+        teams.forEach(team => {
+            home.innerHTML += `<option value="${team}">${team}</option>`;
+            away.innerHTML += `<option value="${team}">${team}</option>`;
+        });
+
+    } catch (e) {
+        console.error("Erro ao carregar times:", e);
+    }
 }
 
 // ===========================
-//  EVENTO CHANGE DO SELECT DE LIGA
+// EVENTO - SELECT DE LIGA
 // ===========================
-const selectLiga = document.getElementById("ligaSelect");
-if (selectLiga) {
-    selectLiga.addEventListener("change", (e) => {
-        loadTeamsByLeague(e.target.value);
+document.getElementById("select-league")
+    ?.addEventListener("change", (e) => loadTeamsByLeague(e.target.value));
+
+// ===========================
+//  CRIAR NOVA LIGA
+// ===========================
+document.getElementById("btn-create-league")
+    ?.addEventListener("click", async () => {
+
+        const name = document.getElementById("new-league-name").value.trim();
+        const idLiga = document.getElementById("idLiga").value.trim();
+        const idSeason = document.getElementById("idSeason").value.trim();
+
+        if (!name || !idLiga || !idSeason) {
+            alert("Preencha todos os campos obrigatórios.");
+            return;
+        }
+
+        const payload = {
+            name,
+            league_id: idLiga,
+            season_id: idSeason
+        };
+
+        try {
+            const res = await fetch(`${API_BASE}/leagues`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                alert("Liga criada com sucesso!");
+                closeModal();
+                loadLeagues();
+            } else {
+                alert("Erro ao criar liga.");
+            }
+
+        } catch (e) {
+            console.error("Erro:", e);
+        }
     });
+
+// ===========================
+//  IMPORTAR CSV DOS TIMES
+// ===========================
+document.getElementById("btn-upload-teams")
+    ?.addEventListener("click", async () => {
+
+        const league = document.getElementById("csv-league-select").value;
+        const files = document.getElementById("input-csv-files").files;
+
+        if (!league) {
+            alert("Selecione uma liga primeiro!");
+            return;
+        }
+
+        if (!files.length) {
+            alert("Selecione pelo menos 1 arquivo CSV.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("league", league);
+
+        for (let f of files) {
+            formData.append("files", f, f.name);
+        }
+
+        try {
+            const res = await fetch(`${API_BASE}/upload_csv`, {
+                method: "POST",
+                body: formData
+            });
+
+            if (res.ok) {
+                alert("Times importados com sucesso!");
+                closeModal();
+                loadTeamsByLeague(league);
+            } else {
+                alert("Erro ao importar CSV.");
+            }
+
+        } catch (e) {
+            console.error("Erro:", e);
+        }
+    });
+
+// ===========================
+// ANALISAR CONFRONTO
+// ===========================
+async function analyzeH2H() {
+    const league = document.getElementById("select-league").value;
+    const home = document.getElementById("select-home").value;
+    const away = document.getElementById("select-away").value;
+
+    if (!league || !home || !away) {
+        alert("Selecione a liga e os dois times.");
+        return;
+    }
+
+    alert(`Analisando: ${home} vs ${away} (Liga ${league})`);
+    // Aqui depois chamamos o endpoint real /analyze
 }
