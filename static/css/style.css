@@ -54,7 +54,9 @@ body {
   border: 1px solid rgba(148, 163, 184, 0.2);
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.9);
   margin-bottom: 16px;
-  overflow: hidden;
+
+  /* 🔥 FIX IMPORTANTE – sem isso o modal descia pro rodapé */
+  overflow: visible !important;
 }
 
 .card-header {
